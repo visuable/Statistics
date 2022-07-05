@@ -40,7 +40,7 @@ public class ReportRequestProcessor : BackgroundService
                 var reportId = await reportService.GenerateReport(unprocessedRequest.From, unprocessedRequest.To,
                     unprocessedRequest.UserId);
 
-                await Task.Delay(options.Delay);
+                await Task.Delay(options.Delay, stoppingToken);
                 await reportRequestService.SetReport(unprocessedRequest.Id, reportId);
                 await reportRequestService.UpdateStatus(unprocessedRequest.Id, RequestStatus.Ready);
             }

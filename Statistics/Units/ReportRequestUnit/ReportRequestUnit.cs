@@ -52,7 +52,7 @@ public class ReportRequestUnit : IReportRequestUnit
                 Percent = reportRequest.Request.Status == RequestStatus.Created
                     ? 0
                     : ReportHelper.GetPercent(reportRequest.Request.CreatedAt, _options.Delay),
-                Result = reportRequest.ReportId == null
+                Result = reportRequest.Report == null
                     ? null
                     : new ReportInfoStatusModel.ReportInfoModel
                     {
