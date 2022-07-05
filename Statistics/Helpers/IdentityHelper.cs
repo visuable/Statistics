@@ -3,57 +3,56 @@ using System.Text;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Statistics.Utils;
 
-namespace Statistics.Helpers
+namespace Statistics.Helpers;
+
+public static class IdentityHelper
 {
-    public static class IdentityHelper
+    public static IdentityModel GenerateNew()
     {
-        public static IdentityModel GenerateNew()
+        var password = FillByRandomLetters(Constants.Identity.PasswordLength);
+        var login = FillByRandomLetters(Constants.Identity.LoginLength);
+
+        var passwordSalt = GetSaltBytes(Constants.Identity.SaltLength);
+        var passwordHash = GetPasswordHashBytes(password, passwordSalt, Constants.Identity.PasswordLength);
+
+        return new IdentityModel
         {
-            var password = FillByRandomLetters(Constants.Identity.PasswordLength);
-            var login = FillByRandomLetters(Constants.Identity.LoginLength);
+            Login = login,
+            PasswordHash = Convert.ToBase64String(passwordHash),
+            PasswordSalt = Convert.ToBase64String(passwordSalt)
+        };
+    }
 
-            var passwordSalt = GetSaltBytes(Constants.Identity.SaltLength);
-            var passwordHash = GetPasswordHashBytes(password, passwordSalt, Constants.Identity.PasswordLength);
+    private static string FillByRandomLetters(int length)
+    {
+        var random = new Random();
+        var builder = new StringBuilder(length);
 
-            return new()
-            {
-                Login = login.ToString(),
-                PasswordHash = Convert.ToBase64String(passwordHash),
-                PasswordSalt = Convert.ToBase64String(passwordSalt)
-            };
+        for (var index = 0; index < length; index++)
+        {
+            var nextLetterIndex = random.Next(0, Constants.Alphabet.Length);
+            builder.Append(Constants.Alphabet[nextLetterIndex]);
         }
 
-        private static string FillByRandomLetters(int length)
-        {
-            var random = new Random();
-            var builder = new StringBuilder(length);
+        return builder.ToString();
+    }
 
-            for (var index = 0; index < length; index++)
-            {
-                var nextLetterIndex = random.Next(0, Constants.Alphabet.Length);
-                builder.Append(Constants.Alphabet[nextLetterIndex]);
-            }
+    private static byte[] GetSaltBytes(int length)
+    {
+        var salt = new byte[length];
+        RandomNumberGenerator.Fill(salt);
+        return salt;
+    }
 
-            return builder.ToString();
-        }
+    private static byte[] GetPasswordHashBytes(string password, byte[] salt, int length)
+    {
+        return KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA256, 20, length);
+    }
 
-        private static byte[] GetSaltBytes(int length)
-        {
-            var salt = new byte[length];
-            RandomNumberGenerator.Fill(salt);
-            return salt;
-        }
-
-        private static byte[] GetPasswordHashBytes(string password, byte[] salt, int length)
-        {
-            return KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA256, 20, length);
-        }
-
-        public class IdentityModel
-        {
-            public string Login { get; set; }
-            public string PasswordHash { get; set; }
-            public string PasswordSalt { get; set; }
-        }
+    public class IdentityModel
+    {
+        public string Login { get; set; }
+        public string PasswordHash { get; set; }
+        public string PasswordSalt { get; set; }
     }
 }

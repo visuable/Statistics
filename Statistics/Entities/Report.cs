@@ -1,9 +1,8 @@
-﻿namespace Statistics.Entities
+﻿namespace Statistics.Entities;
+
+public class Report : BaseEntity
 {
-    public class Report : BaseEntity
-    {
-        public int CountSignIn { get; set; }
-        public Guid UserId { get; set; }
-        public User User { get; set; }
-    }
+    public int CountSignIn { get; set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; }
 }

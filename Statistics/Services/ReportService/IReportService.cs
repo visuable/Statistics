@@ -1,7 +1,6 @@
-﻿namespace Statistics.Services.ReportService
+﻿namespace Statistics.Services.ReportService;
+
+public interface IReportService
 {
-    public interface IReportService
-    {
-        Task<Guid> GenerateReport(DateTime from, DateTime to, Guid userId);
-    }
+    Task<Guid> GenerateReport(DateTime from, DateTime to, Guid userId);
 }

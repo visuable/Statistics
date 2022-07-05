@@ -1,25 +1,24 @@
-﻿namespace Statistics.Entities
+﻿namespace Statistics.Entities;
+
+public class Session : BaseEntity
 {
-    public class Session : BaseEntity
+    public Guid UserId { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public User User { get; set; }
+
+    public class Builder
     {
-        public Guid UserId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public User User { get; set; }
+        private readonly Session _session = new() { CreatedAt = DateTime.UtcNow };
 
-        public class Builder
+        public Builder WithUser(Guid userId)
         {
-            private readonly Session _session = new() { CreatedAt = DateTime.UtcNow };
+            _session.UserId = userId;
+            return this;
+        }
 
-            public Builder WithUser(Guid userId)
-            {
-                _session.UserId = userId;
-                return this;
-            }
-
-            public Session Build()
-            {
-                return _session;
-            }
+        public Session Build()
+        {
+            return _session;
         }
     }
 }

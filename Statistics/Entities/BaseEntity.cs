@@ -1,12 +1,11 @@
-﻿namespace Statistics.Entities
-{
-    public class BaseEntity
-    {
-        public Guid Id { get; set; }
+﻿namespace Statistics.Entities;
 
-        public BaseEntity()
-        {
-            Id = Guid.NewGuid();
-        }
+public class BaseEntity
+{
+    public BaseEntity()
+    {
+        Id = Guid.NewGuid();
     }
+
+    public Guid Id { get; set; }
 }

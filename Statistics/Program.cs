@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Statistics.Options;
 using Statistics.Services.ReportRequestService;
 using Statistics.Services.ReportService;

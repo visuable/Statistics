@@ -1,7 +1,6 @@
-﻿namespace Statistics.Options
+﻿namespace Statistics.Options;
+
+public class ReportOptions
 {
-    public class ReportOptions
-    {
-        public int Delay { get; set; }
-    }
+    public int Delay { get; set; }
 }

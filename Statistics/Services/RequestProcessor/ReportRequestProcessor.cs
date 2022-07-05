@@ -1,45 +1,48 @@
 ﻿using Microsoft.Extensions.Options;
-
 using Statistics.Entities;
 using Statistics.Options;
 using Statistics.Services.ReportRequestService;
 using Statistics.Services.ReportService;
 
-namespace Statistics.Services.RequestProcessor
+namespace Statistics.Services.RequestProcessor;
+
+public class ReportRequestProcessor : BackgroundService
 {
-    public class ReportRequestProcessor : BackgroundService
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public ReportRequestProcessor(IServiceScopeFactory serviceScopeFactory)
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        _serviceScopeFactory = serviceScopeFactory;
+    }
 
-        public ReportRequestProcessor(IServiceScopeFactory serviceScopeFactory)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var options = scope.ServiceProvider.GetRequiredService<IOptions<ReportOptions>>().Value;
+
+        while (!stoppingToken.IsCancellationRequested)
         {
-            _serviceScopeFactory = serviceScopeFactory;
-        }
+            var reportRequestService = scope.ServiceProvider.GetRequiredService<IReportRequestService>();
+            var reportService = scope.ServiceProvider.GetRequiredService<IReportService>();
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var options = scope.ServiceProvider.GetRequiredService<IOptions<ReportOptions>>().Value;
+            var unprocessedRequests = await reportRequestService.GetUnprocessed();
 
-            while (!stoppingToken.IsCancellationRequested)
+            if (!unprocessedRequests.Any())
             {
-                var reportRequestService = scope.ServiceProvider.GetRequiredService<IReportRequestService>();
-                var reportService = scope.ServiceProvider.GetRequiredService<IReportService>();
+                await Task.Delay(1000);
+                continue;
+            }
 
-                var unprocessedRequests = await reportRequestService.GetUnprocessed();
+            foreach (var unprocessedRequest in unprocessedRequests)
+            {
+                await reportRequestService.UpdateStatus(unprocessedRequest.Id, RequestStatus.Processing);
 
-                if (!unprocessedRequests.Any()) { await Task.Delay(1000); continue; }
+                var reportId = await reportService.GenerateReport(unprocessedRequest.From, unprocessedRequest.To,
+                    unprocessedRequest.UserId);
 
-                foreach (var unprocessedRequest in unprocessedRequests)
-                {
-                    await reportRequestService.UpdateStatus(unprocessedRequest.Id, RequestStatus.Processing);
-                    
-                    var reportId = await reportService.GenerateReport(unprocessedRequest.From, unprocessedRequest.To, unprocessedRequest.UserId);
-                    
-                    await Task.Delay(options.Delay);
-                    await reportRequestService.SetReport(unprocessedRequest.Id, reportId);
-                    await reportRequestService.UpdateStatus(unprocessedRequest.Id, RequestStatus.Ready);
-                }
+                await Task.Delay(options.Delay);
+                await reportRequestService.SetReport(unprocessedRequest.Id, reportId);
+                await reportRequestService.UpdateStatus(unprocessedRequest.Id, RequestStatus.Ready);
             }
         }
     }

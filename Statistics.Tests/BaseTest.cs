@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Statistics.Tests
+namespace Statistics.Tests;
+
+// Важно! Все тесты необходимо запускать отдельно, поскольку возникают траблы с контекстом.
+public class BaseTest
 {
-    public class BaseTest
+    static BaseTest()
     {
-        public static IServiceProvider ServiceProvider { get; set; }
-
-        protected static IServiceCollection Services { get; set; }
-
-        static BaseTest()
-        {
-            Services = new ServiceCollection();
-        }
+        Services = new ServiceCollection();
     }
+
+    public static IServiceProvider ServiceProvider { get; set; }
+
+    protected static IServiceCollection Services { get; set; }
 }
