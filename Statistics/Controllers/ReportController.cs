@@ -1,8 +1,6 @@
 ﻿using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
-
 using Statistics.Units.ReportRequestUnit;
-
 using static Statistics.Units.ReportRequestUnit.IReportRequestUnit;
 
 namespace Statistics.Controllers;
@@ -20,7 +18,7 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Создает заявку на получение статистики пользователя
+    ///     Создает заявку на получение статистики пользователя
     /// </summary>
     /// <remarks>Время указывается везде по UTC</remarks>
     /// <param name="model">Модель создания заявки</param>
@@ -32,7 +30,7 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Получает информацию о заявке 
+    ///     Получает информацию о заявке
     /// </summary>
     /// <param name="model">Модель отправки запроса</param>
     /// <returns>Модель состояния заявки</returns>
